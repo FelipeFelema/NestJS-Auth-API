@@ -138,13 +138,25 @@ export class UsersService {
             data.password = await bcrypt.hash(data.password, 10);
         }
 
-        const updateUser = await this.prisma.user.update({
+        try {
+            const updateUser = await this.prisma.user.update({
             where: { id },
             data,
             select: this.userSelect
         });
 
         return this.sanitizeUser(updateUser);
+
+        } catch (error) {
+            if (
+                error instanceof Prisma.PrismaClientKnownRequestError &&
+                error.code === 'P2002'
+            ) {
+                throw new ConflictException('Email already exists')
+            }
+            throw error;
+        }
+        
     }
 
     async remove(id: string) {

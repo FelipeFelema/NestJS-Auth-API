@@ -35,6 +35,7 @@ export default function App() {
         return (
             <RegisterScreen
                 onRegisterSuccess={() => setScreen("login")}
+                onLogOut={() => setScreen("login")}
             />
         );
     }
