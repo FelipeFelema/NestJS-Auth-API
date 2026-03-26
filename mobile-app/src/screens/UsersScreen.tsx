@@ -24,16 +24,34 @@ export default function UsersScreen({
   const [users, setUsers] = useState<any[]>([]);
   const [editingUser, setEditingUser] = useState<any | null>(null);
   const [loading, setLoading] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [deletingId, setDeletingId] = useState<string | null >(null);
 
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
+  const [page, setPage] = useState(1);
+  const [total, setTotal] = useState(0);
+  const [totalPages, setTotalPages] = useState(1);
+  const [limit, setLimit] = useState(10);
+  const [search, setSearch] = useState("");
+  const [hasNextPage, setHasNextPage] = useState(false);
+
   async function loadUsers() {
     try {
       setLoading(true);
-      const data = await getUsers();
-      setUsers(data);
+      const response = await getUsers({
+        page,
+        limit,
+        ...(search ? { search } : {}),
+      });
+
+      setUsers(response.data);
+      setTotal(response.total);
+      setTotalPages(response.totalPages);
+      setHasNextPage(response.hasNextPage);
+
     } catch (error) {
       const err = error as any;
 
@@ -53,7 +71,7 @@ export default function UsersScreen({
 
   useEffect(() => {
     loadUsers();
-  }, []);
+  }, [page, limit]);
 
   function handleEdit(user: any) {
     setEditingUser(user);
@@ -65,6 +83,7 @@ export default function UsersScreen({
     if (!editingUser) return;
 
     try {
+      setSaving(true);
       const dataToUpdate: any = { name, email };
 
       if (password) {
@@ -93,6 +112,8 @@ export default function UsersScreen({
             "Error updating user"
 
         showAlert("Error", message)
+    } finally {
+      setSaving(false)
     }
   }
 
@@ -107,6 +128,7 @@ export default function UsersScreen({
           style: "destructive",
           onPress: async () => {
             try {
+              setDeletingId(id);
               await deleteUser(id);
 
               setUsers((prev) => prev.filter((u) => u.id !== id));
@@ -124,6 +146,8 @@ export default function UsersScreen({
                     "Error deleting user"
 
                 showAlert("Error", message)
+            } finally {
+              setDeletingId(null);
             }
           },
         },
@@ -181,19 +205,86 @@ export default function UsersScreen({
             style={styles.input}
             secureTextEntry
           />
+          
+          <View style={styles.editActions}>
+            <TouchableOpacity
+              style={styles.cancelButtonFixed}
+              onPress={() => setEditingUser(null)}
+            >
+              <Text style={styles.cancelText}>Cancel</Text>
+            </TouchableOpacity>
 
-          <TouchableOpacity style={styles.editButton} onPress={handleSaveEdit}>
-            <Text style={styles.buttonText}>Save</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={styles.cancelButton}
-            onPress={() => setEditingUser(null)}
-          >
-            <Text style={styles.cancelText}>Cancel</Text>
-          </TouchableOpacity>
+            <TouchableOpacity
+              style={[
+                styles.saveButtonFixed,
+                saving && styles.disabledButton
+              ]}
+              onPress={handleSaveEdit}
+              disabled={saving}
+            >
+              {saving ? (
+                <ActivityIndicator color="#fff" />
+              ) : (
+                <Text style={styles.buttonText}>Save</Text>
+              )}
+            </TouchableOpacity>
+          </View>
         </View>
       )}
+
+      <View style={styles.searchContainer}>
+        <Text style={styles.searchLabel}>Search Users</Text>
+
+        <TextInput
+        placeholder="Search by email..."
+        value={search}
+        onChangeText={setSearch}
+        style={styles.input}
+      />
+
+      <TouchableOpacity
+        style={styles.searchButton}
+        onPress={() => {
+          setPage(1);
+          loadUsers();
+        }}
+      >
+        <Text style={styles.buttonText}>Search</Text>
+      </TouchableOpacity>
+      </View>
+      
+  <View style={styles.limitContainer}>
+      <Text style={styles.limitLabel}>Items per page</Text>
+
+  <View style={styles.limitButtonsRow}>
+    {[10, 20, 50].map((value) => (
+      <TouchableOpacity
+        key={value}
+        onPress={() => {
+          setLimit(value)
+          setPage(1)
+        }}
+        style={[
+          styles.limitButton,
+          limit === value && styles.limitButtonActive,
+        ]}
+      >
+        <Text
+          style={[
+            styles.limitText,
+            limit === value && styles.limitTextActive,
+          ]}
+        >
+          {value}
+        </Text>
+      </TouchableOpacity>
+    ))}
+    </View>
+  </View>
+
+      <Text style={styles.totalText}>
+        Showing {(page - 1) * limit + 1} - {Math.min(page * limit, total)} of {total}
+      </Text>
 
       <FlatList
         data={users}
@@ -218,13 +309,45 @@ export default function UsersScreen({
               <TouchableOpacity
                 style={styles.deleteButton}
                 onPress={() => handleDelete(item.id)}
+                disabled={deletingId === item.id}
               >
-                <Text style={styles.buttonText}>Delete</Text>
+                {deletingId === item.id ? (
+                  <ActivityIndicator color="#fff" />
+                ) : (
+                  <Text style={styles.buttonText}>Delete</Text>
+                )}
               </TouchableOpacity>
             </View>
           </View>
         )}
       />
+
+        <View style={styles.pagination}>
+          <TouchableOpacity
+            style={[
+              styles.pageButton,
+              page === 1 && styles.disabledButton
+            ]}
+            disabled={page === 1}
+            onPress={() => setPage((p) => p - 1)}
+          >
+            <Text style={styles.pageText}>Previous</Text>
+          </TouchableOpacity>
+
+          <Text style={styles.pageIndicator}>Page {page} of {totalPages}</Text>
+
+          <TouchableOpacity
+            style={[
+              styles.pageButton,
+              !hasNextPage && styles.disabledButton
+            ]}
+            disabled={!hasNextPage}
+            onPress={() => setPage((p) => p + 1)}
+          >
+            <Text style={styles.pageText}>Next</Text>
+          </TouchableOpacity>
+        </View>
+
     </View>
   );
 }
@@ -271,6 +394,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     marginBottom: 20,
     elevation: 3,
+    width: "100%",
   },
 
   editTitle: {
@@ -289,11 +413,6 @@ const styles = StyleSheet.create({
   cancelButton: {
     marginTop: 10,
     alignItems: "center",
-  },
-
-  cancelText: {
-    color: "#4f46e5",
-    fontWeight: "500",
   },
 
   card: {
@@ -351,5 +470,133 @@ const styles = StyleSheet.create({
   buttonText: {
     color: "#fff",
     fontWeight: "bold",
+  },
+
+  pagination: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginTop: 20,
+    padding: 15,
+    backgroundColor: "#fff",
+    borderRadius: 12,
+    elevation: 3,
+  },
+
+  pageButton: {
+    paddingVertical: 8,
+    paddingHorizontal: 15,
+    borderRadius: 8,
+    backgroundColor: "#4f46e5",
+  },
+
+disabledButton: {
+    backgroundColor: "#a5b4fc",
+  },
+
+pageText: {
+    color: "#fff",
+    fontWeight: "bold",
+  },
+
+pageIndicator: {
+    fontWeight: "bold",
+    color: "#333",
+  },
+
+  searchContainer: {
+    backgroundColor: "#fff",
+    padding: 15,
+    borderRadius: 12,
+    marginBottom: 15,
+    elevation: 3,
+  },
+
+  searchButton: {
+    backgroundColor: "#4f46e5",
+    padding: 12,
+    borderRadius: 8,
+    alignItems: "center",
+    marginBottom: 10,
+  },
+
+  searchLabel: {
+    fontWeight: "bold",
+    marginBottom: 8,
+    fontSize: 14,
+    color: "#333",
+  },
+
+  limitContainer: {
+    backgroundColor: "#fff",
+    padding: 15,
+    borderRadius: 12,
+    marginBottom: 15,
+    elevation: 3,
+  },
+
+  limitButton: {
+    width: "30%",
+    paddingVertical: 10,
+    borderRadius: 8,
+    alignItems: "center",
+    backgroundColor: "#e5e7eb",
+  },
+
+  limitButtonActive: {
+    backgroundColor: "#4f46e5",
+  },
+
+  limitText: {
+    fontWeight: "bold",
+    color: "#333",
+  },
+
+  limitTextActive: {
+    color: "#fff",
+  },
+
+  limitLabel: {
+    fontSize: 12,
+    color: "#666",
+    marginBottom: 8,
+  },
+
+  limitButtonsRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+  },
+
+  editActions: {
+    flexDirection: "row",
+    gap: 10,
+    marginTop: 10,
+  },
+
+  saveButtonFixed: {
+    flex: 1,
+    backgroundColor: "#4f46e5",
+    padding: 12,
+    borderRadius: 8,
+    alignItems: "center",
+  },
+
+  cancelButtonFixed: {
+    flex: 1,
+    backgroundColor: "#e5e7eb",
+    padding: 12,
+    borderRadius: 8,
+    alignItems: "center",
+  },
+
+  cancelText: {
+    color: "#333",
+    fontWeight: "bold",
+  },
+
+  totalText: {
+    marginBottom: 10,
+    fontWeight: "bold",
+    color: "#333",
   },
 });

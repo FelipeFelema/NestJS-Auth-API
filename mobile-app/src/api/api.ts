@@ -1,5 +1,5 @@
 import axios from "axios";
-import { getAccessToken, getRefreshToken, saveTokens } from "../storage/authStorage";
+import { clearTokens, getAccessToken, getRefreshToken, saveTokens } from "../storage/authStorage";
 
 const api = axios.create({
     baseURL: "http://192.168.0.100:3000/api/v1",
@@ -29,23 +29,29 @@ api.interceptors.response.use(
         if (error.response?.status === 401 && !originalRequest._retry) {
             originalRequest._retry = true;
 
-            const refreshToken = await getRefreshToken();
-
             try {
+                const refreshToken = await getRefreshToken();
+
                 const response = await axios.post(
-                    'http://192.168.0.100:3000/api/v1/auth/refresh',
+                    "http://192.168.0.100:3000/api/v1/auth/refresh",
                     { refreshToken }
                 );
 
-                const { accessToken, refreshToken: newRefresh } = response.data;
+                const { access_token, refresh_token } = response.data;
 
-                await saveTokens(accessToken, newRefresh);
+                await saveTokens(access_token, refresh_token);
 
-                originalRequest.headers.Authorization = `Bearer ${accessToken}`;
+                api.defaults.headers.common.Authorization = `Bearer ${access_token}`;
 
+                originalRequest.headers = {
+                    ...originalRequest.headers,
+                    Authorization: `Bearer ${access_token}`,
+                };
+                
                 return api(originalRequest);
             } catch (err) {
-                console.log("Refresh token failed");
+                await clearTokens();
+                return Promise.reject(err);
             }
         }
 

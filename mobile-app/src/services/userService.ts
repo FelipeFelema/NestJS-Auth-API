@@ -1,10 +1,23 @@
 import api from "../api/api";
 
-export const getUsers = async () => {
-    const response = await api.get("/users");
-    return response.data.data;
-};
+export async function getUsers(params?: {
+    page?: number;
+    limit?: number;
+    search?: string;
+}) {
+    const cleanParams: any = {};
 
+    if (params?.page) cleanParams.page = params.page;
+    if (params?.limit) cleanParams.limit = params.limit;
+    if (params?.search) cleanParams.search = params.search;
+
+    const response = await api.get("/users", {
+        params: cleanParams,
+    });
+
+    return response.data;
+}
+   
 export const getMe = async () => {
     const response = await api.get("/users/me")
     return response.data;

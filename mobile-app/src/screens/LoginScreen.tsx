@@ -22,8 +22,6 @@ export default function LoginScreen({ onLoginSuccess, onGoToRegister }: LoginScr
 
             const { accessToken, refreshToken } = await login(email, password);
             
-            await saveTokens(accessToken, refreshToken);
-            
             await getMe();
 
             showAlert("Success",
