@@ -41,7 +41,7 @@ Este projeto é dividido em duas partes:
 
 ---
  
-## 📸 Interface do Projeto
+##  Interface do Projeto
 
 | Tela de Login | Tela de Registro |
 | :---: | :---: |
