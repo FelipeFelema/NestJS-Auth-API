@@ -13,14 +13,6 @@ Este projeto é dividido em duas partes:
 
 ---
 
-## Estrutura do Projeto
-
-/
-├── mobile-app
-├── users-api-nest
-
----
-
 ## Tecnologias
 
 ### Back-end
