@@ -41,22 +41,19 @@ Este projeto é dividido em duas partes:
 
 ---
  
-## Prints
+## 📸 Interface do Projeto
 
-### Tela de Login
-<img width="680" height="506" alt="Image" src="https://github.com/user-attachments/assets/bc52b18a-2385-4f58-91f8-814765b6d08e" />
+| Tela de Login | Tela de Registro |
+| :---: | :---: |
+| <img src="https://github.com/user-attachments/assets/c71733a1-8a6a-4db6-985a-b0abe7cc12d1" width="400"> | <img src="https://github.com/user-attachments/assets/99542e07-586f-4644-b74b-69ba84c82193" width="400"> |
 
-### Tela de Registro
-<img width="514" height="489" alt="Image" src="https://github.com/user-attachments/assets/e035cd09-d45c-4c7c-a5ad-becac8894f41" />
+| Tela de Perfil | Tela Editando Perfil |
+| :---: | :---: |
+| <img src="https://github.com/user-attachments/assets/eab432cc-b081-4b74-b482-fbff3520a3b6" width="400"> | <img src="https://github.com/user-attachments/assets/4354f3bc-d523-4ebe-b907-36d697a96e53" width="400"> |
 
-### Tela de Perfil
-<img width="484" height="544" alt="Image" src="https://github.com/user-attachments/assets/40877919-3c10-4847-b108-895d01b9b9b8" />
-
-### Tela Editando perfil
-<img width="483" height="449" alt="Image" src="https://github.com/user-attachments/assets/320e0cb3-ef25-4aea-b875-c59e3c783c78" />
-
-### Tela de Usuários
-<img width="490" height="664" alt="Image" src="https://github.com/user-attachments/assets/3fe875ac-f401-4715-8f8d-a33452c30651" />
+| Tela de Gestão de Usuários |
+| :---: |
+| <img src="https://github.com/user-attachments/assets/34b86273-914d-499b-b0eb-e0c998c126df" width="400"> |
 
 ---
 
