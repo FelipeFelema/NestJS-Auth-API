@@ -43,7 +43,20 @@ Este projeto é dividido em duas partes:
  
 ## Prints
 
-(colocar imagens aqui)
+### Tela de Login
+<img width="680" height="506" alt="Image" src="https://github.com/user-attachments/assets/bc52b18a-2385-4f58-91f8-814765b6d08e" />
+
+### Tela de Registro
+<img width="514" height="489" alt="Image" src="https://github.com/user-attachments/assets/e035cd09-d45c-4c7c-a5ad-becac8894f41" />
+
+### Tela de Perfil
+<img width="484" height="544" alt="Image" src="https://github.com/user-attachments/assets/40877919-3c10-4847-b108-895d01b9b9b8" />
+
+### Tela Editando perfil
+<img width="483" height="449" alt="Image" src="https://github.com/user-attachments/assets/320e0cb3-ef25-4aea-b875-c59e3c783c78" />
+
+### Tela de Usuários
+<img width="490" height="664" alt="Image" src="https://github.com/user-attachments/assets/3fe875ac-f401-4715-8f8d-a33452c30651" />
 
 ---
 
